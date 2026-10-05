@@ -155,6 +155,20 @@ a{color:inherit;text-decoration:none}
 .period:hover{transform:translateY(-2px);box-shadow:var(--shadow-soft)}
 .period.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(185,136,65,.12),var(--shadow-soft)}
 .period.full{opacity:.56;cursor:not-allowed}
+.period.loading{cursor:default;opacity:.86}
+.period.loading:hover{transform:none;box-shadow:none}
+.pill.loading{background:#f2eee7;color:#8b8174}
+.availability-error{
+  display:none;
+  margin-top:10px;
+  border-radius:12px;
+  padding:10px 12px;
+  background:#fdeae8;
+  border:1px solid #efc7c3;
+  color:#9b3d35;
+  font-size:12px;
+  line-height:1.4;
+}
  .radio{width:18px;height:18px;border:2px solid var(--gold);border-radius:5px;margin-bottom:10px;position:relative}
 .period.selected .radio::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid var(--gold);border-width:0 2px 2px 0;transform:rotate(45deg)}
 .period strong{display:block;font-size:14px;margin-bottom:8px}
@@ -186,30 +200,305 @@ a{color:inherit;text-decoration:none}
   color:white;font-weight:900;
 }
 
-.confirmation{
+/* Confirmation festive — version Noël premium */
+.success-overlay{
+  position:fixed;
+  inset:0;
   display:none;
-  margin-top:10px;
-  padding:12px 14px 12px 44px;
-  border-radius:14px;
-  background:linear-gradient(90deg,#edf7f0,#e4f1e8);
-  border:1px solid #c9e2d1;
-  color:#2f7347;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,255,255,.10),transparent 30%),
+    rgba(16,43,35,.64);
+  backdrop-filter:blur(8px);
+  z-index:9999;
+}
+.success-overlay.show{display:flex}
+
+.success-modal{
+  width:min(610px,100%);
   position:relative;
-  font-size:13px;
+  overflow:hidden;
+  border-radius:30px;
+  text-align:center;
+  padding:118px 42px 34px;
+  background:
+    radial-gradient(circle at 50% -6%,rgba(255,255,255,.98),rgba(255,251,242,.96) 40%,rgba(249,240,224,.97) 100%);
+  border:1px solid rgba(185,136,65,.55);
+  box-shadow:
+    0 34px 100px rgba(10,35,28,.42),
+    inset 0 0 0 5px rgba(255,255,255,.42);
+  animation:christmasPop .32s ease-out;
 }
-.confirmation::before{
-  content:"✓";
-  position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  width:23px;height:23px;border-radius:50%;
-  display:grid;place-items:center;
-  background:var(--ok);color:white;font-weight:900;
+
+@keyframes christmasPop{
+  from{opacity:0;transform:translateY(10px) scale(.975)}
+  to{opacity:1;transform:translateY(0) scale(1)}
 }
-.confirmation::after{
-  content:"✦  ❄  ✦";
-  position:absolute;right:12px;bottom:8px;
-  color:#79a887;font-size:11px;letter-spacing:.25em;
+
+.success-modal::before{
+  content:"";
+  position:absolute;
+  inset:12px;
+  border-radius:22px;
+  border:1px solid rgba(185,136,65,.25);
+  pointer-events:none;
 }
-.confirmation strong{display:block;margin-bottom:2px}
+
+.success-modal::after{
+  content:"✦   ❄   ✦";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:10px;
+  color:rgba(185,136,65,.62);
+  font-size:12px;
+  letter-spacing:.7em;
+  pointer-events:none;
+}
+
+.success-close{
+  position:absolute;
+  top:17px;
+  right:18px;
+  z-index:5;
+  width:36px;
+  height:36px;
+  border:1px solid rgba(17,72,56,.10);
+  border-radius:50%;
+  background:rgba(255,255,255,.72);
+  color:var(--green);
+  font-size:21px;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(17,72,56,.08);
+}
+
+/* Grande guirlande végétale */
+.christmas-garland{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:106px;
+  overflow:hidden;
+  pointer-events:none;
+}
+.christmas-garland::before{
+  content:"";
+  position:absolute;
+  left:-4%;
+  right:-4%;
+  top:15px;
+  height:62px;
+  border-radius:0 0 50% 50%;
+  background:
+    radial-gradient(ellipse at 7% 55%,#174f3e 0 8%,transparent 9%),
+    radial-gradient(ellipse at 15% 42%,#25664f 0 8%,transparent 9%),
+    radial-gradient(ellipse at 24% 58%,#0f4938 0 8%,transparent 9%),
+    radial-gradient(ellipse at 34% 41%,#286d53 0 8%,transparent 9%),
+    radial-gradient(ellipse at 44% 58%,#154f3c 0 8%,transparent 9%),
+    radial-gradient(ellipse at 55% 43%,#24644e 0 8%,transparent 9%),
+    radial-gradient(ellipse at 65% 58%,#104737 0 8%,transparent 9%),
+    radial-gradient(ellipse at 75% 42%,#286b53 0 8%,transparent 9%),
+    radial-gradient(ellipse at 85% 57%,#154d3c 0 8%,transparent 9%),
+    radial-gradient(ellipse at 94% 43%,#24634d 0 8%,transparent 9%);
+  filter:drop-shadow(0 7px 9px rgba(14,55,44,.18));
+}
+.christmas-garland .twig{
+  position:absolute;
+  top:48px;
+  left:8%;
+  right:8%;
+  height:3px;
+  border-radius:99px;
+  background:linear-gradient(90deg,#76522f,#9a7245,#76522f);
+  transform:rotate(-1deg);
+}
+.christmas-garland .ribbon{
+  position:absolute;
+  left:50%;
+  top:28px;
+  width:72px;
+  height:31px;
+  transform:translateX(-50%);
+}
+.christmas-garland .ribbon::before,
+.christmas-garland .ribbon::after{
+  content:"";
+  position:absolute;
+  top:4px;
+  width:38px;
+  height:24px;
+  background:linear-gradient(135deg,#a53d35,#c95a50);
+  border-radius:65% 18% 65% 18%;
+  box-shadow:0 4px 10px rgba(130,44,39,.20);
+}
+.christmas-garland .ribbon::before{left:0;transform:rotate(20deg)}
+.christmas-garland .ribbon::after{right:0;transform:scaleX(-1) rotate(20deg)}
+.christmas-garland .knot{
+  position:absolute;
+  left:50%;
+  top:9px;
+  width:20px;
+  height:20px;
+  transform:translateX(-50%) rotate(45deg);
+  border-radius:5px;
+  background:#b9473e;
+  z-index:2;
+}
+.christmas-garland .berry{
+  position:absolute;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#d05b50,#9f352e);
+  box-shadow:0 2px 5px rgba(120,38,32,.24);
+}
+.christmas-garland .b1{left:20%;top:40px}
+.christmas-garland .b2{left:24%;top:57px}
+.christmas-garland .b3{right:22%;top:39px}
+.christmas-garland .b4{right:18%;top:57px}
+.christmas-garland .b5{left:37%;top:64px}
+.christmas-garland .b6{right:36%;top:63px}
+.christmas-garland .gold-dot{
+  position:absolute;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#f5d79d,#b98841);
+  box-shadow:0 0 12px rgba(185,136,65,.45);
+}
+.christmas-garland .g1{left:12%;top:62px}
+.christmas-garland .g2{left:31%;top:34px}
+.christmas-garland .g3{right:31%;top:34px}
+.christmas-garland .g4{right:12%;top:62px}
+
+/* Petites branches latérales */
+.side-sprig{
+  position:absolute;
+  width:90px;
+  height:105px;
+  opacity:.92;
+  pointer-events:none;
+}
+.side-sprig.left{left:-20px;bottom:34px;transform:rotate(-18deg)}
+.side-sprig.right{right:-20px;bottom:34px;transform:scaleX(-1) rotate(-18deg)}
+.side-sprig::before{
+  content:"";
+  position:absolute;
+  left:42px;
+  top:4px;
+  width:3px;
+  height:94px;
+  border-radius:10px;
+  background:#8b6337;
+}
+.side-sprig::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 38% 18%,#1a5c47 0 13%,transparent 14%),
+    radial-gradient(ellipse at 63% 28%,#28694f 0 13%,transparent 14%),
+    radial-gradient(ellipse at 36% 44%,#104b39 0 13%,transparent 14%),
+    radial-gradient(ellipse at 66% 55%,#286a51 0 13%,transparent 14%),
+    radial-gradient(ellipse at 37% 71%,#14503d 0 13%,transparent 14%);
+}
+
+.success-badge{
+  width:66px;
+  height:66px;
+  margin:0 auto 18px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 28%,#2b765b,#0f4d3a 72%);
+  color:#fff;
+  font-size:32px;
+  font-weight:900;
+  box-shadow:
+    0 10px 24px rgba(17,72,56,.27),
+    0 0 0 8px rgba(17,72,56,.07);
+}
+.success-badge::after{
+  content:"";
+  position:absolute;
+  inset:-12px;
+  border-radius:50%;
+  border:1px solid rgba(185,136,65,.38);
+}
+
+.success-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  padding:6px 11px;
+  border-radius:999px;
+  background:rgba(185,136,65,.11);
+  color:#8a642e;
+  border:1px solid rgba(185,136,65,.20);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.success-kicker::before,
+.success-kicker::after{
+  content:"✦";
+  font-size:8px;
+}
+
+.success-modal h3{
+  margin:0 0 10px;
+  color:#0f4d3a;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:34px;
+  line-height:1.08;
+  letter-spacing:-.01em;
+}
+.success-modal p{
+  margin:0 auto;
+  max-width:455px;
+  color:#59615d;
+  line-height:1.6;
+  font-size:15px;
+}
+.success-modal .success-ref{
+  display:inline-block;
+  margin-top:17px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:rgba(185,136,65,.08);
+  border:1px solid rgba(185,136,65,.18);
+  color:#8a642e;
+  font-size:12px;
+}
+.success-modal .success-action{
+  margin-top:22px;
+  border:0;
+  border-radius:13px;
+  padding:12px 27px;
+  background:linear-gradient(180deg,#165842,#0e4635);
+  color:#fff;
+  font-weight:850;
+  cursor:pointer;
+  box-shadow:0 8px 17px rgba(17,72,56,.16);
+}
+.success-modal .success-action:hover{transform:translateY(-1px)}
+
+@media (max-width:540px){
+  .success-modal{
+    padding:108px 23px 32px;
+    border-radius:24px;
+  }
+  .success-modal h3{font-size:28px}
+  .success-modal p{font-size:14px}
+  .side-sprig{opacity:.55}
+}
 
 @media (max-width:980px){
   .hero{grid-template-columns:1fr}
@@ -261,10 +550,10 @@ a{color:inherit;text-decoration:none}
       <div class="hero-copy">
         <div class="eyebrow">Campagne de Noël</div>
         <h2>Interventions vitrines sur les week-ends</h2>
-        <div class="subtitle">À partir du 3e week-end de novembre</div>
+        <div class="subtitle">Les trois derniers week-ends de novembre</div>
         <div class="rule"></div>
         <p>
-          Choisissez la prestation souhaitée puis le week-end qui vous convient.
+          Choisissez la prestation souhaitée puis un ou plusieurs week-ends parmi les trois derniers week-ends de novembre.
           Votre jour d’intervention vous sera confirmé ensuite selon l’organisation des tournées.
         </p>
         <div class="hero-note">Réservations ouvertes jusqu’au 6 novembre</div>
@@ -360,7 +649,33 @@ a{color:inherit;text-decoration:none}
         </div>
 
         <div class="period-grid" id="periodGrid">
-          <div class="info-box" style="grid-column:1/-1">Chargement des disponibilités…</div>
+          <div class="period loading" data-period-id="WE-1415">
+            <div class="radio"></div>
+            <strong>14–15 novembre</strong>
+            <span class="pill loading">Actualisation…</span>
+            <small>Disponibilités en cours de mise à jour.</small>
+            <div class="ornament">❄</div>
+          </div>
+
+          <div class="period loading" data-period-id="WE-2122">
+            <div class="radio"></div>
+            <strong>21–22 novembre</strong>
+            <span class="pill loading">Actualisation…</span>
+            <small>Disponibilités en cours de mise à jour.</small>
+            <div class="ornament">✦</div>
+          </div>
+
+          <div class="period loading" data-period-id="WE-2829">
+            <div class="radio"></div>
+            <strong>28–29 novembre</strong>
+            <span class="pill loading">Actualisation…</span>
+            <small>Disponibilités en cours de mise à jour.</small>
+            <div class="ornament">❄</div>
+          </div>
+        </div>
+
+        <div id="availabilityError" class="availability-error">
+          Les disponibilités n’ont pas pu être actualisées pour le moment. Vous pouvez réessayer en rechargeant la page.
         </div>
 
         <div id="formError" class="info-box" style="display:none;background:#fdeae8;border-color:#efc7c3;color:#9b3d35"></div>
@@ -371,9 +686,36 @@ a{color:inherit;text-decoration:none}
 
         <button class="send" id="sendButton" onclick="sendRequest()">Envoyer ma demande</button>
 
-        <div id="confirmation" class="confirmation">
-          <strong>Votre demande est bien enregistrée.</strong>
-          On revient vers vous très vite pour confirmer votre intervention et vous transmettre les éléments nécessaires à la suite.
+        <div id="successOverlay" class="success-overlay" onclick="if(event.target===this) closeSuccessModal()">
+          <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+            <button class="success-close" type="button" aria-label="Fermer" onclick="closeSuccessModal()">×</button>
+
+            <div class="christmas-garland" aria-hidden="true">
+              <span class="twig"></span>
+              <span class="ribbon"><span class="knot"></span></span>
+              <span class="berry b1"></span>
+              <span class="berry b2"></span>
+              <span class="berry b3"></span>
+              <span class="berry b4"></span>
+              <span class="berry b5"></span>
+              <span class="berry b6"></span>
+              <span class="gold-dot g1"></span>
+              <span class="gold-dot g2"></span>
+              <span class="gold-dot g3"></span>
+              <span class="gold-dot g4"></span>
+            </div>
+
+            <span class="side-sprig left" aria-hidden="true"></span>
+            <span class="side-sprig right" aria-hidden="true"></span>
+
+            <div class="success-badge">✓</div>
+            <div class="success-kicker">Demande envoyée</div>
+            <h3 id="successTitle">Votre demande est bien enregistrée</h3>
+            <p id="successMessage">On revient vers vous très vite pour confirmer votre intervention et vous transmettre les éléments nécessaires à la suite.</p>
+            <div id="successRef" class="success-ref"></div>
+            <br>
+            <button class="success-action" type="button" onclick="closeSuccessModal()">Fermer</button>
+          </div>
         </div>
 
       </div>
@@ -385,12 +727,62 @@ a{color:inherit;text-decoration:none}
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwr1qDKqRk9gfHjDwHxQPS0aZMLl2FbjLOe5R7H1xkJ9DmcILSH689VRe3q_WLx2HiHHA/exec";
 
+const AVAILABILITY_CACHE_KEY = 'vitrines-noel-availability-v1';
+
+const FALLBACK_PERIODS = [
+  {id:'WE-1415', label:'14–15 novembre', order:1},
+  {id:'WE-2122', label:'21–22 novembre', order:2},
+  {id:'WE-2829', label:'28–29 novembre', order:3}
+];
+
+function getCachedAvailability(){
+  try{
+    const raw = localStorage.getItem(AVAILABILITY_CACHE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.periods) ? parsed : null;
+  }catch(error){
+    return null;
+  }
+}
+
+function saveCachedAvailability(data){
+  try{
+    localStorage.setItem(
+      AVAILABILITY_CACHE_KEY,
+      JSON.stringify({
+        savedAt: Date.now(),
+        periods: data.periods || []
+      })
+    );
+  }catch(error){
+    // Le cache est uniquement un confort d'affichage.
+  }
+}
+
+function renderFallbackPeriods(){
+  const grid = document.getElementById('periodGrid');
+
+  grid.innerHTML = FALLBACK_PERIODS.map((p, index) => {
+    const ornaments = ['❄','✦','❄'];
+    return `
+      <div class="period loading" data-period-id="${p.id}">
+        <div class="radio"></div>
+        <strong>${p.label}</strong>
+        <span class="pill loading">Actualisation…</span>
+        <small>Disponibilités en cours de mise à jour.</small>
+        <div class="ornament">${ornaments[index % ornaments.length]}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 function toggleChoice(el){
   el.classList.toggle('active');
 }
 
 function togglePeriod(el){
-  if(el.classList.contains('full')) return;
+  if(el.classList.contains('full') || el.classList.contains('loading')) return;
   el.classList.toggle('selected');
 }
 
@@ -417,6 +809,9 @@ function hideError(){
 
 async function loadAvailability(){
   const grid = document.getElementById('periodGrid');
+  const availabilityError = document.getElementById('availabilityError');
+
+  availabilityError.style.display = 'none';
 
   try{
     const response = await fetch(API_URL + '?action=bootstrap&ts=' + Date.now(), {
@@ -439,16 +834,29 @@ async function loadAvailability(){
       return;
     }
 
+    saveCachedAvailability(data);
     renderPeriods(data.periods || []);
 
   }catch(error){
     console.error(error);
-    grid.innerHTML = '<div class="info-box" style="grid-column:1/-1;background:#fdeae8;border-color:#efc7c3;color:#9b3d35">Impossible de charger les disponibilités pour le moment. Merci de réessayer.</div>';
+
+    // On conserve les dates déjà visibles au lieu de remplacer toute la grille.
+    if(!document.querySelector('.period')){
+      renderFallbackPeriods();
+    }
+
+    availabilityError.style.display = 'block';
   }
 }
 
 function renderPeriods(periods){
   const grid = document.getElementById('periodGrid');
+
+  const selectedIds = new Set(
+    [...document.querySelectorAll('.period.selected')]
+      .map(el => el.dataset.periodId)
+      .filter(Boolean)
+  );
 
   if(!periods.length){
     grid.innerHTML = '<div class="info-box" style="grid-column:1/-1">Aucun week-end n’est disponible actuellement.</div>';
@@ -457,6 +865,7 @@ function renderPeriods(periods){
 
   grid.innerHTML = periods.map((p, index) => {
     const fullClass = p.full ? ' full' : '';
+    const selectedClass = !p.full && selectedIds.has(p.id) ? ' selected' : '';
     const availabilityClass = p.full ? 'full' : 'open';
     const availabilityText = p.full
       ? 'Complet'
@@ -467,7 +876,7 @@ function renderPeriods(periods){
     const ornaments = ['❄','✦','❄'];
 
     return `
-      <div class="period${fullClass}" data-period-id="${p.id}" onclick="togglePeriod(this)">
+      <div class="period${fullClass}${selectedClass}" data-period-id="${p.id}" onclick="togglePeriod(this)">
         <div class="radio"></div>
         <strong>${p.label}</strong>
         <span class="pill ${availabilityClass}">${availabilityText}</span>
@@ -479,6 +888,57 @@ function renderPeriods(periods){
     `;
   }).join('');
 }
+
+function createClientRequestId(){
+  const now = new Date();
+
+  const stamp =
+    now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') + '-' +
+    String(now.getHours()).padStart(2, '0') +
+    String(now.getMinutes()).padStart(2, '0') +
+    String(now.getSeconds()).padStart(2, '0');
+
+  const random = Math.floor(Math.random() * 900 + 100);
+
+  return `DEM-${stamp}-${random}`;
+}
+
+
+async function waitForRequestCreation(requestId, timeoutMs = 12000){
+  const started = Date.now();
+
+  while(Date.now() - started < timeoutMs){
+    try{
+      const response = await fetch(
+        API_URL +
+        '?action=checkRequest&requestId=' +
+        encodeURIComponent(requestId) +
+        '&ts=' +
+        Date.now(),
+        {
+          method:'GET',
+          cache:'no-store'
+        }
+      );
+
+      const result = await response.json();
+
+      if(result.ok && result.exists){
+        return true;
+      }
+
+    }catch(error){
+      console.warn('Vérification en cours…', error);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 550));
+  }
+
+  return false;
+}
+
 
 async function sendRequest(){
   hideError();
@@ -501,75 +961,127 @@ async function sendRequest(){
     showError('Merci de renseigner le nom de l’entreprise.');
     return;
   }
+
   if(!contact){
     showError('Merci de renseigner le nom du contact.');
     return;
   }
+
   if(!email){
     showError('Merci de renseigner votre adresse email.');
     return;
   }
+
   if(!services.length){
     showError('Merci de sélectionner au moins une prestation.');
     return;
   }
+
   if(!periodIds.length){
     showError('Merci de sélectionner au moins un week-end.');
     return;
   }
 
   const button = document.getElementById('sendButton');
+  const requestId = createClientRequestId();
+
   button.disabled = true;
   button.textContent = 'Envoi en cours…';
 
+  const body = JSON.stringify({
+    action:'submitReservation',
+    payload:{
+      requestId,
+      company,
+      contact,
+      email,
+      phone,
+      services,
+      periodIds,
+      comment
+    }
+  });
+
+  /*
+   * IMPORTANT :
+   * On n’essaie plus de lire la réponse du POST Apps Script.
+   * Apps Script peut renvoyer une page Google HTML après redirection,
+   * ce qui produisait "Unexpected token <".
+   *
+   * Le POST part en mode no-cors.
+   * Puis on vérifie la création réelle de la demande par un GET séparé.
+   */
   try{
-    const response = await fetch(API_URL, {
+    fetch(API_URL, {
       method:'POST',
+      mode:'no-cors',
       headers:{
         'Content-Type':'text/plain;charset=utf-8'
       },
-      body:JSON.stringify({
-        action:'submitReservation',
-        payload:{
-          company,
-          contact,
-          email,
-          phone,
-          services,
-          periodIds,
-          comment
-        }
-      })
+      body,
+      keepalive:true
+    }).catch(error => {
+      console.warn('POST envoyé, réponse navigateur non exploitée :', error);
     });
 
-    const result = await response.json();
+    const created = await waitForRequestCreation(requestId);
 
-    if(!result.ok){
-      throw new Error(result.error || 'La demande n’a pas pu être enregistrée.');
+    if(!created){
+      throw new Error(
+        'L’envoi prend plus de temps que prévu. Ne renvoyez pas le formulaire : vérifiez dans quelques instants que vous avez reçu l’email de confirmation.'
+      );
     }
 
-    const confirmation = document.getElementById('confirmation');
-    confirmation.innerHTML =
-      '<strong>Votre demande est bien enregistrée.</strong>' +
-      (result.data && result.data.message
-        ? result.data.message.replace(/^Votre demande est bien enregistrée\.\s*/,'')
-        : 'On revient vers vous très vite pour confirmer votre intervention et vous transmettre les éléments nécessaires à la suite.');
+    document.getElementById('successMessage').textContent =
+      'On revient vers vous très vite pour confirmer votre intervention et vous transmettre les éléments nécessaires à la suite.';
 
-    confirmation.style.display = 'block';
-    confirmation.scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('successRef').textContent =
+      'Référence : ' + requestId;
 
-    await loadAvailability();
+    document.getElementById('successOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+
+    /*
+     * La réservation existe déjà.
+     * Les mails et la notification admin peuvent finir de partir en arrière-plan.
+     */
+    loadAvailability();
 
   }catch(error){
     console.error(error);
-    showError(error.message || 'Une erreur est survenue. Merci de réessayer.');
+    showError(
+      error.message ||
+      'Une erreur est survenue. Merci de réessayer.'
+    );
+
   }finally{
     button.disabled = false;
     button.textContent = 'Envoyer ma demande';
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadAvailability);
+
+function closeSuccessModal(){
+  document.getElementById('successOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', event => {
+  if(event.key === 'Escape') closeSuccessModal();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cached = getCachedAvailability();
+
+  if(cached && cached.periods && cached.periods.length){
+    renderPeriods(cached.periods);
+  }else{
+    renderFallbackPeriods();
+  }
+
+  // La réponse Google vient ensuite remplacer/actualiser les compteurs.
+  loadAvailability();
+});
 </script>
 
 </body>
