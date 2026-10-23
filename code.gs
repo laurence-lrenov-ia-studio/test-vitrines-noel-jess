@@ -56,10 +56,6 @@ function onOpen() {
       'setupVitrinesNoel'
     )
     .addItem(
-      'Afficher la clé admin',
-      'showAdminKey'
-    )
-    .addItem(
       'Autoriser les notifications Gmail',
       'autoriserNotificationsAdmin'
     )
@@ -157,17 +153,6 @@ function setupParams_(sheet) {
     readParamsFromSheet_(sheet);
 
 
-  const adminKey =
-    old.ADMIN_KEY ||
-    Utilities
-      .getUuid()
-      .replace(/-/g, '') +
-    Utilities
-      .getUuid()
-      .replace(/-/g, '')
-      .slice(0, 12);
-
-
   const rows = [
 
     [
@@ -216,12 +201,6 @@ function setupParams_(sheet) {
       old.TIMEZONE ||
       'Europe/Paris',
       'Fuseau horaire'
-    ],
-
-    [
-      'ADMIN_KEY',
-      adminKey,
-      'Clé privée de l’interface Jess'
     ],
 
     [
@@ -722,6 +701,10 @@ function doGet(e) {
       );
 
 
+    if (action === 'adminDashboard') {
+      return json_({ok: true, data: getAdminDashboard()});
+    }
+
     if (
       action === 'health'
     ) {
@@ -801,12 +784,6 @@ function doPost(e) {
       body.payload || {};
 
 
-    const adminKey =
-      clean_(
-        body.adminKey
-      );
-
-
     switch (action) {
 
 
@@ -824,16 +801,14 @@ function doPost(e) {
         });
 
 
-      case 'getAdminDashboard':
+      case 'adminDashboard':
 
         return json_({
 
           ok: true,
 
           data:
-            getAdminDashboard(
-              adminKey
-            )
+            getAdminDashboard()
 
         });
 
@@ -846,8 +821,6 @@ function doPost(e) {
 
           data:
             setSelectedPeriod(
-
-              adminKey,
 
               clean_(
                 payload.requestId
@@ -871,8 +844,6 @@ function doPost(e) {
           data:
             assignPoseDay(
 
-              adminKey,
-
               clean_(
                 payload.requestId
               ),
@@ -895,8 +866,6 @@ function doPost(e) {
           data:
             setRequestStatus(
 
-              adminKey,
-
               clean_(
                 payload.requestId
               ),
@@ -918,8 +887,6 @@ function doPost(e) {
 
           data:
             setPeriodOpen(
-
-              adminKey,
 
               clean_(
                 payload.periodId
@@ -1564,14 +1531,7 @@ function validateReservation_(d) {
    INTERFACE JESS
    ============================================================ */
 
-function getAdminDashboard(
-  adminKey
-) {
-
-  requireAdmin_(
-    adminKey
-  );
-
+function getAdminDashboard() {
 
   const periods =
     getAdminPeriods_();
@@ -1633,9 +1593,11 @@ function getAdminDashboard(
     periods:
       periods,
 
-    bookings:
-      bookings
-
+    bookings: bookings,
+    settings: {
+      cutoff: formatDate_(getParam_('DATE_FERMETURE'), 'dd/MM/yyyy'),
+      notificationEmail: clean_(getParam_('NOTIFICATION_EMAIL'))
+    }
   };
 
 }
@@ -1646,15 +1608,9 @@ function getAdminDashboard(
    ============================================================ */
 
 function setSelectedPeriod(
-  adminKey,
   requestId,
   periodId
 ) {
-
-  requireAdmin_(
-    adminKey
-  );
-
 
   const row =
     findRequestRow_(
@@ -1676,6 +1632,10 @@ function setSelectedPeriod(
       VN.SHEETS.BOOKINGS
     );
 
+
+  if (clean_(sheet.getRange(row, 10).getValue()) === VN.STATUS.CONFIRMED) {
+    throw new Error('Repasse la demande en devis avant de changer son week-end.');
+  }
 
   const requestedIds =
     splitIds_(
@@ -1735,9 +1695,7 @@ function setSelectedPeriod(
     );
 
 
-  return getAdminDashboard(
-    adminKey
-  );
+  return getAdminDashboard();
 
 }
 
@@ -1747,15 +1705,9 @@ function setSelectedPeriod(
    ============================================================ */
 
 function assignPoseDay(
-  adminKey,
   requestId,
   day
 ) {
-
-  requireAdmin_(
-    adminKey
-  );
-
 
   day =
     clean_(
@@ -1809,9 +1761,7 @@ function assignPoseDay(
     );
 
 
-  return getAdminDashboard(
-    adminKey
-  );
+  return getAdminDashboard();
 
 }
 
@@ -1821,15 +1771,9 @@ function assignPoseDay(
    ============================================================ */
 
 function setRequestStatus(
-  adminKey,
   requestId,
   newStatus
 ) {
-
-  requireAdmin_(
-    adminKey
-  );
-
 
   if (
     !Object
@@ -2021,9 +1965,7 @@ function setRequestStatus(
   }
 
 
-  return getAdminDashboard(
-    adminKey
-  );
+  return getAdminDashboard();
 
 }
 
@@ -2033,15 +1975,9 @@ function setRequestStatus(
    ============================================================ */
 
 function setPeriodOpen(
-  adminKey,
   periodId,
   open
 ) {
-
-  requireAdmin_(
-    adminKey
-  );
-
 
   const period =
     getPeriod_(
@@ -2072,9 +2008,7 @@ function setPeriodOpen(
     );
 
 
-  return getAdminDashboard(
-    adminKey
-  );
+  return getAdminDashboard();
 
 }
 
@@ -3356,80 +3290,5 @@ function makeRequestId_() {
     )
 
   );
-
-}
-
-
-/* ============================================================
-   ADMIN KEY
-   ============================================================ */
-
-function isAdminKeyValid_(
-  candidate
-) {
-
-  const expected =
-    clean_(
-      getParam_(
-        'ADMIN_KEY'
-      )
-    );
-
-
-  return Boolean(
-
-    expected &&
-
-    candidate &&
-
-    clean_(
-      candidate
-    ) ===
-    expected
-
-  );
-
-}
-
-
-function requireAdmin_(
-  candidate
-) {
-
-  if (
-    !isAdminKeyValid_(
-      candidate
-    )
-  ) {
-
-    throw new Error(
-      'Accès administrateur refusé.'
-    );
-
-  }
-
-}
-
-
-function showAdminKey() {
-
-  SpreadsheetApp
-    .getUi()
-    .alert(
-
-      'Clé admin',
-
-      clean_(
-        getParam_(
-          'ADMIN_KEY'
-        )
-      ),
-
-      SpreadsheetApp
-        .getUi()
-        .ButtonSet
-        .OK
-
-    );
 
 }
